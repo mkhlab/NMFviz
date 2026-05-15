@@ -35,7 +35,7 @@
   .run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
   .eq-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; font-family: var(--mono); font-size: 0.75rem; line-height: 1.8; color: var(--text2); }
-  .eq-v { color: var(--accent2); } .eq-w { color: var(--accent3); } .eq-h { color: var(--accent4); }
+  .eq-y { color: var(--accent2); } .eq-h { color: var(--accent3); } .eq-u { color: var(--accent4); }
 
   .err-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
   .err-label { font-size: 0.7rem; color: var(--text3); font-family: var(--mono); margin-bottom: 0.3rem; }
@@ -47,15 +47,16 @@
 
   .section-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
   .section-tag { font-family: var(--mono); font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
-  .tag-v  { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.3); }
-  .tag-w  { background: rgba(67,217,142,0.15);  color: var(--accent3); border: 1px solid rgba(67,217,142,0.3); }
-  .tag-h  { background: rgba(255,184,77,0.15);  color: var(--accent4); border: 1px solid rgba(255,184,77,0.4); }
-  .tag-r  { background: rgba(91,140,255,0.15);  color: var(--accent);  border: 1px solid rgba(91,140,255,0.3); }
+  .tag-y { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.3); }
+  .tag-u { background: rgba(67,217,142,0.15);  color: var(--accent3); border: 1px solid rgba(67,217,142,0.3); }
+  .tag-h { background: rgba(255,184,77,0.15);  color: var(--accent4); border: 1px solid rgba(255,184,77,0.4); }
+  .tag-r { background: rgba(91,140,255,0.15);  color: var(--accent);  border: 1px solid rgba(91,140,255,0.3); }
   .section-title { font-size: 0.9rem; color: var(--text); font-weight: 500; }
   .section-sub { font-size: 0.75rem; color: var(--text2); }
 
   .canvas-grid { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
   .canvas-cell { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .canvas-cell canvas { border-radius: 4px; border: 1px solid var(--border); image-rendering: pixelated; }
   .canvas-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); }
 
   .heatmap-wrap { overflow-x: auto; }
@@ -65,15 +66,13 @@
   .row-header { padding-right: 10px; color: var(--text2); text-align: right; white-space: nowrap; }
 
   .legend { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text3); margin-top: 0.5rem; }
-  .legend-bar { width: 100px; height: 8px; border-radius: 2px; background: linear-gradient(to right, #0d0f14, #5b8cff); }
-
-  .insight { background: var(--bg3); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; font-size: 0.8rem; color: var(--text2); line-height: 1.7; max-width: 680px; }
+  .legend-bar { width: 100px; height: 8px; border-radius: 2px; background: linear-gradient(to right, #0d0f14, #ffb84d); }
 
   .flow { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; font-family: var(--mono); font-size: 0.85rem; }
   .flow-block { padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 500; font-size: 0.9rem; }
-  .flow-v { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.4); }
-  .flow-w { background: rgba(67,217,142,0.15); color: var(--accent3); border: 1px solid rgba(67,217,142,0.4); }
-  .flow-h { background: rgba(255,184,77,0.15); color: var(--accent4); border: 1px solid rgba(255,184,77,0.4); }
+  .flow-y { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.4); }
+  .flow-h { background: rgba(255,184,77,0.15);  color: var(--accent4); border: 1px solid rgba(255,184,77,0.4); }
+  .flow-u { background: rgba(67,217,142,0.15);  color: var(--accent3); border: 1px solid rgba(67,217,142,0.4); }
   .flow-dim { font-size: 0.65rem; color: var(--text3); text-align: center; margin-top: 3px; }
   .flow-sym { color: var(--text3); font-size: 1.1rem; }
 
@@ -81,7 +80,6 @@
   .loading-msg { font-family: var(--mono); font-size: 0.8rem; color: var(--text3); padding: 2rem 0; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   .pulsing { animation: pulse 1.2s infinite; }
-
   .warn-badge { display: none; font-family: var(--mono); font-size: 0.7rem; color: var(--accent4); background: rgba(255,184,77,0.1); border: 1px solid rgba(255,184,77,0.3); border-radius: 4px; padding: 0.3rem 0.6rem; margin-top: 0.5rem; }
 </style>
 </head>
@@ -108,17 +106,16 @@
         <div class="ctrl-label">基底数 k <span id="kVal">3</span></div>
         <input type="range" id="kSlider" min="1" max="7" value="3" step="1">
       </div>
-      <!-- 反復回数は固定値200で非表示 -->
       <button class="run-btn" id="runBtn" onclick="runNMF()">↺ 再実行（初期値を変える）</button>
     </div>
 
     <div class="ctrl-section">
       <div class="ctrl-title">分解式</div>
       <div class="eq-box">
-        <span class="eq-v">V</span> ≈ <span class="eq-w">W</span> × <span class="eq-h">H</span><br><br>
-        <span class="eq-v">V</span> : 元データ行列<br>
-        <span class="eq-w">W</span> : 混合係数行列<br>
-        <span class="eq-h">H</span> : 基底行列（パーツの形）<br><br>
+        <span class="eq-y">Y</span> ≃ <span class="eq-h">H</span> × <span class="eq-u">U</span><br><br>
+        <span class="eq-y">Y</span> : 元データ行列<br>
+        <span class="eq-h">H</span> : 重み係数行列<br>
+        <span class="eq-u">U</span> : 基底ベクトル行列<br><br>
         <span style="color:var(--text3)">制約: すべての要素 ≥ 0</span>
       </div>
     </div>
@@ -126,7 +123,7 @@
     <div class="ctrl-section">
       <div class="ctrl-title">再構成誤差</div>
       <div class="err-box">
-        <div class="err-label">‖ V − WH ‖_F</div>
+        <div class="err-label">‖ Y − HU ‖_F</div>
         <div class="err-val" id="errVal">—</div>
         <div class="err-bar-wrap"><div class="err-bar" id="errBar" style="width:0%"></div></div>
       </div>
@@ -135,34 +132,34 @@
   </div>
 
   <div class="content">
-    <!-- equation flow -->
+    <!-- 分解式フロー -->
     <div>
       <div class="flow">
         <div>
-          <div class="flow-block flow-v">V</div>
-          <div class="flow-dim" id="dimV">n × d</div>
+          <div class="flow-block flow-y">Y</div>
+          <div class="flow-dim" id="dimY">n × d</div>
         </div>
-        <span class="flow-sym">≈</span>
+        <span class="flow-sym">≃</span>
         <div>
-          <div class="flow-block flow-w">W</div>
-          <div class="flow-dim" id="dimW">n × k</div>
+          <div class="flow-block flow-h">H</div>
+          <div class="flow-dim" id="dimH">n × k</div>
         </div>
         <span class="flow-sym">×</span>
         <div>
-          <div class="flow-block flow-h">H</div>
-          <div class="flow-dim" id="dimH">k × d</div>
+          <div class="flow-block flow-u">U</div>
+          <div class="flow-dim" id="dimU">k × d</div>
         </div>
       </div>
     </div>
 
     <hr class="sep">
 
-    <!-- V: original -->
+    <!-- Y: 元データ -->
     <div>
       <div class="section-head">
-        <span class="section-tag tag-v">V — 元データ</span>
+        <span class="section-tag tag-y">Y — 元データ</span>
         <span class="section-title">入力画像サンプル</span>
-        <span class="section-sub">各画像を1行のベクトルとして行列 V に格納</span>
+        <span class="section-sub">各画像を1行のベクトルとして行列 Y に格納</span>
       </div>
       <div class="canvas-grid" id="origGrid">
         <div class="loading-msg pulsing">パターンを選択してください…</div>
@@ -171,12 +168,12 @@
 
     <hr class="sep">
 
-    <!-- H: basis shapes -->
+    <!-- U: 基底ベクトル -->
     <div>
       <div class="section-head">
-        <span class="section-tag tag-h">H — 基底パーツの形</span>
-        <span class="section-title">NMFが発見した基底パーツ（H の各行）</span>
-        <span class="section-sub">H の各行が「パーツの見た目」を表す。</span>
+        <span class="section-tag tag-u">U — 基底ベクトル行列</span>
+        <span class="section-title">NMFが発見した基底パーツ（U の各行）</span>
+        <span class="section-sub">各行が1つの基底ベクトルの形を表す。明るいほどそのピクセルが重要</span>
       </div>
       <div class="canvas-grid" id="basisGrid">
         <div class="loading-msg pulsing">計算待ち…</div>
@@ -185,29 +182,29 @@
 
     <hr class="sep">
 
-    <!-- W: coefficient heatmap -->
+    <!-- H: 重み係数ヒートマップ -->
     <div>
       <div class="section-head">
-        <span class="section-tag tag-w">W — 係数行列</span>
-        <span class="section-title">各画像における基底パーツの使用量</span>
-        <span class="section-sub">明るいほど「その基底パーツをよく使っている」ことを示す</span>
+        <span class="section-tag tag-h">H — 重み係数行列</span>
+        <span class="section-title">各画像における基底ベクトルの重み</span>
+        <span class="section-sub">明るいほど「その基底ベクトルの寄与が大きい」ことを示す</span>
       </div>
       <div class="heatmap-wrap" id="heatmapWrap">
         <div class="loading-msg pulsing">計算待ち…</div>
       </div>
       <div class="legend" id="hLegend" style="display:none">
         <span>低</span><div class="legend-bar"></div><span>高</span>
-        <span style="margin-left:8px">（各基底の使用量）</span>
+        <span style="margin-left:8px">（各基底ベクトルの重み）</span>
       </div>
     </div>
 
     <hr class="sep">
 
-    <!-- WH: reconstructed -->
+    <!-- HU: 再構成 -->
     <div>
       <div class="section-head">
-        <span class="section-tag tag-r">WH — 再構成</span>
-        <span class="section-title">基底パーツを係数で足し合わせた結果</span>
+        <span class="section-tag tag-r">HU — 再構成</span>
+        <span class="section-title">基底ベクトルを重みで足し合わせた結果</span>
         <span class="section-sub">元画像と比較して、どれだけ近似できているかを確認</span>
       </div>
       <div class="canvas-grid" id="reconGrid">
@@ -218,9 +215,9 @@
 </div>
 
 <script>
-const SZ   = 10;
-const N    = 8;
-const ITERS = 200; // 固定
+const SZ    = 10;
+const N     = 8;
+const ITERS = 200;
 
 // ===== パターン生成 =====
 function makeTemplates(type) {
@@ -259,7 +256,7 @@ function makeTemplates(type) {
   return t;
 }
 
-function addNoise(arr, amt=0.06) {
+function addNoise(arr,amt=0.06){
   return arr.map(v=>Math.min(1,Math.max(0,v+(Math.random()-0.5)*amt*2)));
 }
 
@@ -270,85 +267,80 @@ function mm(A,B,m,p,n){
   return C;
 }
 function tr(A,r,c){ return Array.from({length:c},(_,j)=>Array.from({length:r},(_,i)=>A[i][j])); }
-function frob(V,W,H){
-  const WH=mm(W,H,V.length,W[0].length,H[0].length);
+function frob(Y,H,U){
+  const HU=mm(H,U,Y.length,H[0].length,U[0].length);
   let s=0;
-  for(let i=0;i<V.length;i++) for(let j=0;j<V[i].length;j++) s+=(V[i][j]-WH[i][j])**2;
+  for(let i=0;i<Y.length;i++) for(let j=0;j<Y[i].length;j++) s+=(Y[i][j]-HU[i][j])**2;
   return Math.sqrt(s);
 }
 
 // ===== NMF 初期化：データから直接サンプリング =====
-function initFromData(V, k) {
-  const m=V.length, d=V[0].length;
-  // H: データからランダムk行を選び小ノイズを加える（基底の形を実データで初期化）
-  const chosen=[];
+function initFromData(Y,k){
+  const m=Y.length;
   const perm=[...Array(m).keys()].sort(()=>Math.random()-0.5);
-  for(let i=0;i<k;i++) chosen.push(perm[i%m]);
-  const H=chosen.map(idx=>V[idx].map(v=>Math.max(1e-3,v+Math.random()*0.05)));
-  // W: 小さな一様乱数
-  const W=Array.from({length:m},()=>Array.from({length:k},()=>Math.random()*0.2+0.05));
-  return {W,H};
+  // U（基底ベクトル行列）: データからk行をサンプリング
+  const U=Array.from({length:k},(_,i)=>Y[perm[i%m]].map(v=>Math.max(1e-3,v+Math.random()*0.05)));
+  // H（重み係数行列）: 小さな一様乱数
+  const H=Array.from({length:m},()=>Array.from({length:k},()=>Math.random()*0.2+0.05));
+  return {H,U};
 }
 
 // ===== 死んだ基底を検出してリセット =====
-function reviveDeadBases(V,W,H,k,m,d) {
+function reviveDeadBases(Y,H,U,k,m,d){
   const THRESH=1e-3;
   let revived=false;
   for(let ki=0;ki<k;ki++){
-    const hSum=H[ki].reduce((s,v)=>s+v,0);
-    if(hSum < THRESH * d){
-      // 残差最大のサンプルで再初期化
-      const WH=mm(W,H,m,k,d);
-      let maxRes=-1, maxIdx=0;
+    const uSum=U[ki].reduce((s,v)=>s+v,0);
+    if(uSum < THRESH*d){
+      const HU=mm(H,U,m,k,d);
+      let maxRes=-1,maxIdx=0;
       for(let i=0;i<m;i++){
-        const res=V[i].reduce((s,v,j)=>s+(v-WH[i][j])**2,0);
-        if(res>maxRes){maxRes=res; maxIdx=i;}
+        const res=Y[i].reduce((s,v,j)=>s+(v-HU[i][j])**2,0);
+        if(res>maxRes){maxRes=res;maxIdx=i;}
       }
-      H[ki]=V[maxIdx].map(v=>Math.max(1e-3,v+Math.random()*0.05));
-      for(let i=0;i<m;i++) W[i][ki]=Math.random()*0.2+0.05;
+      U[ki]=Y[maxIdx].map(v=>Math.max(1e-3,v+Math.random()*0.05));
+      for(let i=0;i<m;i++) H[i][ki]=Math.random()*0.2+0.05;
       revived=true;
     }
   }
   return revived;
 }
 
-// ===== NMF 本体 =====
-function nmf(V, k) {
-  const m=V.length, d=V[0].length;
+// ===== NMF 本体（Y ≃ H × U） =====
+function nmf(Y,k){
+  const m=Y.length, d=Y[0].length;
   const eps=1e-9;
-  let {W,H}=initFromData(V,k);
+  let {H,U}=initFromData(Y,k);
   let revivedTotal=false;
 
   for(let it=0;it<ITERS;it++){
-    // H 更新
-    const WH=mm(W,H,m,k,d);
-    const WtV=mm(tr(W,m,k),V,k,m,d);
-    const WtWH=mm(tr(W,m,k),WH,k,m,d);
+    // U 更新
+    const HU=mm(H,U,m,k,d);
+    const HtY=mm(tr(H,m,k),Y,k,m,d);
+    const HtHU=mm(tr(H,m,k),HU,k,m,d);
     for(let i=0;i<k;i++) for(let j=0;j<d;j++)
-      H[i][j]=Math.max(eps, H[i][j]*WtV[i][j]/(WtWH[i][j]+eps));
+      U[i][j]=Math.max(eps, U[i][j]*HtY[i][j]/(HtHU[i][j]+eps));
 
-    // W 更新
-    const WH2=mm(W,H,m,k,d);
-    const VHt=mm(V,tr(H,k,d),m,d,k);
-    const WHHt=mm(WH2,tr(H,k,d),m,d,k);
+    // H 更新
+    const HU2=mm(H,U,m,k,d);
+    const YUt=mm(Y,tr(U,k,d),m,d,k);
+    const HUUt=mm(HU2,tr(U,k,d),m,d,k);
     for(let i=0;i<m;i++) for(let j=0;j<k;j++)
-      W[i][j]=Math.max(eps, W[i][j]*VHt[i][j]/(WHHt[i][j]+eps));
+      H[i][j]=Math.max(eps, H[i][j]*YUt[i][j]/(HUUt[i][j]+eps));
 
-    // 50回ごとに死んだ基底をチェック・修復
     if((it+1)%50===0){
-      const r=reviveDeadBases(V,W,H,k,m,d);
+      const r=reviveDeadBases(Y,H,U,k,m,d);
       if(r) revivedTotal=true;
     }
   }
-  // 最終チェック
-  const r=reviveDeadBases(V,W,H,k,m,d);
+  const r=reviveDeadBases(Y,H,U,k,m,d);
   if(r) revivedTotal=true;
 
-  return {W, H, revived: revivedTotal};
+  return {H, U, revived: revivedTotal};
 }
 
 // ===== 描画 =====
-function drawCanvas(pixels, sz, colorFn) {
+function drawCanvas(pixels,sz,colorFn){
   const c=document.createElement('canvas');
   c.width=N*sz; c.height=N*sz;
   c.style.cssText=`width:${N*sz}px;height:${N*sz}px;image-rendering:pixelated;`;
@@ -363,7 +355,7 @@ function grayColor(v){ const g=Math.round(13+v*225); return `rgb(${g},${g},${g})
 function basisColor(v){ return `rgb(${Math.round(13+v*50)},${Math.round(15+v*200)},${Math.round(20+v*50)})`; }
 function heatColor(v){ return `rgb(${Math.round(13+v*78)},${Math.round(15+v*125)},${Math.round(20+v*245)})`; }
 
-function makeCell(pixels, sz, colorFn, label) {
+function makeCell(pixels,sz,colorFn,label){
   const cell=document.createElement('div');
   cell.className='canvas-cell';
   const c=drawCanvas(pixels,sz,colorFn);
@@ -377,15 +369,13 @@ function makeCell(pixels, sz, colorFn, label) {
   return cell;
 }
 
-function buildHeatmap(W, k, nImg) {
-  // W: n×k → 行=画像, 列=基底  →  表示: 行=基底, 列=画像
-  // 各列（基底ごと）で正規化して比較しやすくする
-  const colMax=Array.from({length:k},(_,ki)=>Math.max(...W.map(row=>row[ki]),1e-6));
+// H ヒートマップ（H: n×k → 行=基底, 列=画像）
+function buildHeatmap(H,k,nImg){
+  const colMax=Array.from({length:k},(_,ki)=>Math.max(...H.map(row=>row[ki]),1e-6));
   const wrap=document.createElement('div');
   const tbl=document.createElement('table');
   tbl.className='heatmap-table';
 
-  // ヘッダー（画像番号）
   const thead=document.createElement('tr');
   const th0=document.createElement('th'); th0.textContent=''; thead.appendChild(th0);
   for(let j=0;j<nImg;j++){
@@ -393,16 +383,15 @@ function buildHeatmap(W, k, nImg) {
   }
   tbl.appendChild(thead);
 
-  // 各基底の行
   for(let ki=0;ki<k;ki++){
     const tr_=document.createElement('tr');
     const rhdr=document.createElement('td');
     rhdr.className='row-header';
-    rhdr.innerHTML=`<span style="color:var(--accent3)">基底 ${ki+1}</span>`;
+    rhdr.innerHTML=`<span style="color:var(--accent4)">基底 ${ki+1}</span>`;
     tr_.appendChild(rhdr);
     for(let j=0;j<nImg;j++){
       const td=document.createElement('td');
-      const raw=W[j][ki];               // 画像j が基底ki に持つ係数
+      const raw=H[j][ki];
       const v=raw/colMax[ki];
       td.style.background=heatColor(v);
       td.style.color=v>0.5?'#e8eaf0':'#555a70';
@@ -416,7 +405,7 @@ function buildHeatmap(W, k, nImg) {
 }
 
 // ===== メイン =====
-function runNMF() {
+function runNMF(){
   const btn=document.getElementById('runBtn');
   btn.disabled=true;
   btn.textContent='計算中…';
@@ -429,59 +418,57 @@ function runNMF() {
     const nImg=samples.length;
     const d=N*N;
 
-    document.getElementById('dimV').textContent=`${nImg} × ${d}`;
-    document.getElementById('dimW').textContent=`${nImg} × ${k}`;
-    document.getElementById('dimH').textContent=`${k} × ${d}`;
+    document.getElementById('dimY').textContent=`${nImg} × ${d}`;
+    document.getElementById('dimH').textContent=`${nImg} × ${k}`;
+    document.getElementById('dimU').textContent=`${k} × ${d}`;
 
-    const {W,H,revived}=nmf(samples,k);
+    const {H,U,revived}=nmf(samples,k);
 
-    // 元画像
+    // Y: 元画像
     const og=document.getElementById('origGrid');
     og.innerHTML='';
     samples.forEach((s,i)=>og.appendChild(makeCell(s,SZ,grayColor,`画像 ${i+1}`)));
 
-    // 基底パーツ（H の各行）
+    // U: 基底ベクトル（U の各行）
     const bg=document.getElementById('basisGrid');
     bg.innerHTML='';
     for(let ki=0;ki<k;ki++){
-      const bvec=Array.from(H[ki]);
+      const bvec=Array.from(U[ki]);
       const mx=Math.max(...bvec,0.01);
       const norm=bvec.map(v=>v/mx);
       bg.appendChild(makeCell(norm,SZ,basisColor,`基底 ${ki+1}`));
     }
 
-    // 係数ヒートマップ（W: n×k）
+    // H: 重み係数ヒートマップ
     const hw=document.getElementById('heatmapWrap');
     hw.innerHTML='';
-    hw.appendChild(buildHeatmap(W,k,nImg));
+    hw.appendChild(buildHeatmap(H,k,nImg));
     document.getElementById('hLegend').style.display='flex';
 
-    // 再構成
-    const WH=mm(W,H,nImg,k,d);
-    const maxWH=Math.max(...WH.map(r=>Math.max(...r)),0.01);
+    // HU: 再構成
+    const HU=mm(H,U,nImg,k,d);
+    const maxHU=Math.max(...HU.map(r=>Math.max(...r)),0.01);
     const rg=document.getElementById('reconGrid');
     rg.innerHTML='';
-    WH.forEach((row,i)=>{
-      const norm=Array.from(row).map(v=>Math.min(1,v/maxWH));
+    HU.forEach((row,i)=>{
+      const norm=Array.from(row).map(v=>Math.min(1,v/maxHU));
       rg.appendChild(makeCell(norm,SZ,grayColor,`再構成 ${i+1}`));
     });
 
     // 誤差
-    const err=frob(samples,W,H);
+    const err=frob(samples,H,U);
     const maxErr=Math.sqrt(nImg*d)*0.55;
     document.getElementById('errVal').textContent=err.toFixed(3);
     document.getElementById('errBar').style.width=Math.max(4,Math.min(100,(1-err/maxErr)*100))+'%';
 
     // 死んだ基底警告
-    const wb=document.getElementById('warnBadge');
-    wb.style.display=revived?'block':'none';
+    document.getElementById('warnBadge').style.display=revived?'block':'none';
 
     btn.disabled=false;
     btn.textContent='↺ 再実行（初期値を変える）';
   },30);
 }
 
-// スライダー変更で自動再計算
 document.getElementById('kSlider').addEventListener('input',e=>{
   document.getElementById('kVal').textContent=e.target.value;
   runNMF();
