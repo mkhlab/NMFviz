@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NMF 非負値行列因子分解 — インタラクティブデモ</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14; --bg2: #151820; --bg3: #1c2030;
+    --border: #2a2f3e; --text: #e8eaf0; --text2: #8a8fa8; --text3: #555a70;
+    --accent: #5b8cff; --accent2: #ff6b6b; --accent3: #43d98e; --accent4: #ffb84d;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'Noto Sans JP', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; line-height: 1.6; }
+
+  .header { border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; display: flex; align-items: baseline; gap: 1.5rem; background: var(--bg2); }
+  .header h1 { font-family: var(--mono); font-size: 1.1rem; font-weight: 500; color: var(--accent); letter-spacing: 0.05em; }
+  .header p { font-size: 0.8rem; color: var(--text2); }
+
+  .main { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 64px); }
+
+  .sidebar { border-right: 1px solid var(--border); background: var(--bg2); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .ctrl-section { display: flex; flex-direction: column; gap: 0.75rem; }
+  .ctrl-title { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.12em; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+  .ctrl-row { display: flex; flex-direction: column; gap: 0.3rem; }
+  .ctrl-label { font-size: 0.75rem; color: var(--text2); display: flex; justify-content: space-between; align-items: center; }
+  .ctrl-label span { font-family: var(--mono); color: var(--accent); font-size: 0.85rem; }
+  input[type=range] { width: 100%; -webkit-appearance: none; height: 3px; background: var(--border); border-radius: 2px; outline: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+  select { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 0.8rem; padding: 0.4rem 0.6rem; border-radius: 4px; outline: none; cursor: pointer; }
+  .run-btn { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); padding: 0.55rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; width: 100%; }
+  .run-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .eq-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; font-family: var(--mono); font-size: 0.75rem; line-height: 1.8; color: var(--text2); }
+  .eq-v { color: var(--accent2); } .eq-w { color: var(--accent3); } .eq-h { color: var(--accent4); }
+
+  .err-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
+  .err-label { font-size: 0.7rem; color: var(--text3); font-family: var(--mono); margin-bottom: 0.3rem; }
+  .err-val { font-size: 1.4rem; font-family: var(--mono); color: var(--accent3); font-weight: 500; }
+  .err-bar-wrap { margin-top: 0.4rem; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .err-bar { height: 100%; background: var(--accent3); border-radius: 2px; transition: width 0.4s ease; }
+
+  .content { padding: 1.5rem 2rem; display: flex; flex-direction: column; gap: 2rem; overflow-y: auto; }
+
+  .section-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .section-tag { font-family: var(--mono); font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
+  .tag-v  { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.3); }
+  .tag-w  { background: rgba(67,217,142,0.15);  color: var(--accent3); border: 1px solid rgba(67,217,142,0.3); }
+  .tag-h  { background: rgba(255,184,77,0.15);  color: var(--accent4); border: 1px solid rgba(255,184,77,0.4); }
+  .tag-r  { background: rgba(91,140,255,0.15);  color: var(--accent);  border: 1px solid rgba(91,140,255,0.3); }
+  .section-title { font-size: 0.9rem; color: var(--text); font-weight: 500; }
+  .section-sub { font-size: 0.75rem; color: var(--text2); }
+
+  .canvas-grid { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+  .canvas-cell { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .canvas-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); }
+
+  .heatmap-wrap { overflow-x: auto; }
+  .heatmap-table { border-collapse: collapse; font-family: var(--mono); font-size: 0.7rem; }
+  .heatmap-table th { padding: 4px 8px; color: var(--text3); font-weight: 400; text-align: center; font-size: 0.65rem; }
+  .heatmap-table td { width: 52px; height: 34px; text-align: center; border: 1px solid var(--bg); font-size: 0.65rem; }
+  .row-header { padding-right: 10px; color: var(--text2); text-align: right; white-space: nowrap; }
+
+  .legend { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text3); margin-top: 0.5rem; }
+  .legend-bar { width: 100px; height: 8px; border-radius: 2px; background: linear-gradient(to right, #0d0f14, #5b8cff); }
+
+  .insight { background: var(--bg3); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; font-size: 0.8rem; color: var(--text2); line-height: 1.7; max-width: 680px; }
+
+  .flow { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; font-family: var(--mono); font-size: 0.85rem; }
+  .flow-block { padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 500; font-size: 0.9rem; }
+  .flow-v { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.4); }
+  .flow-w { background: rgba(67,217,142,0.15); color: var(--accent3); border: 1px solid rgba(67,217,142,0.4); }
+  .flow-h { background: rgba(255,184,77,0.15); color: var(--accent4); border: 1px solid rgba(255,184,77,0.4); }
+  .flow-dim { font-size: 0.65rem; color: var(--text3); text-align: center; margin-top: 3px; }
+  .flow-sym { color: var(--text3); font-size: 1.1rem; }
+
+  .sep { border: none; border-top: 1px solid var(--border); }
+  .loading-msg { font-family: var(--mono); font-size: 0.8rem; color: var(--text3); padding: 2rem 0; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .pulsing { animation: pulse 1.2s infinite; }
+
+  .warn-badge { display: none; font-family: var(--mono); font-size: 0.7rem; color: var(--accent4); background: rgba(255,184,77,0.1); border: 1px solid rgba(255,184,77,0.3); border-radius: 4px; padding: 0.3rem 0.6rem; margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>NMF — 非負値行列因子分解</h1>
+  <p>Non-negative Matrix Factorization インタラクティブデモ</p>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="ctrl-section">
+      <div class="ctrl-title">設定</div>
+      <div class="ctrl-row">
+        <div class="ctrl-label">パターン</div>
+        <select id="patternSel">
+          <option value="face">顔パターン</option>
+          <option value="shapes">幾何図形</option>
+          <option value="letters">アルファベット</option>
+        </select>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-label">基底数 k <span id="kVal">3</span></div>
+        <input type="range" id="kSlider" min="1" max="7" value="3" step="1">
+      </div>
+      <!-- 反復回数は固定値200で非表示 -->
+      <button class="run-btn" id="runBtn" onclick="runNMF()">↺ 再実行（初期値を変える）</button>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-title">分解式</div>
+      <div class="eq-box">
+        <span class="eq-v">V</span> ≈ <span class="eq-w">W</span> × <span class="eq-h">H</span><br><br>
+        <span class="eq-v">V</span> : 元データ行列<br>
+        <span class="eq-w">W</span> : 混合係数行列<br>
+        <span class="eq-h">H</span> : 基底行列（パーツの形）<br><br>
+        <span style="color:var(--text3)">制約: すべての要素 ≥ 0</span>
+      </div>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-title">再構成誤差</div>
+      <div class="err-box">
+        <div class="err-label">‖ V − WH ‖_F</div>
+        <div class="err-val" id="errVal">—</div>
+        <div class="err-bar-wrap"><div class="err-bar" id="errBar" style="width:0%"></div></div>
+      </div>
+      <div class="warn-badge" id="warnBadge">⚠ 死んだ基底を検出・修復しました</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- equation flow -->
+    <div>
+      <div class="flow">
+        <div>
+          <div class="flow-block flow-v">V</div>
+          <div class="flow-dim" id="dimV">n × d</div>
+        </div>
+        <span class="flow-sym">≈</span>
+        <div>
+          <div class="flow-block flow-w">W</div>
+          <div class="flow-dim" id="dimW">n × k</div>
+        </div>
+        <span class="flow-sym">×</span>
+        <div>
+          <div class="flow-block flow-h">H</div>
+          <div class="flow-dim" id="dimH">k × d</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- V: original -->
+    <div>
+      <div class="section-head">
+        <span class="section-tag tag-v">V — 元データ</span>
+        <span class="section-title">入力画像サンプル</span>
+        <span class="section-sub">各画像を1行のベクトルとして行列 V に格納</span>
+      </div>
+      <div class="canvas-grid" id="origGrid">
+        <div class="loading-msg pulsing">パターンを選択してください…</div>
+      </div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- H: basis shapes -->
+    <div>
+      <div class="section-head">
+        <span class="section-tag tag-h">H — 基底パーツの形</span>
+        <span class="section-title">NMFが発見した基底パーツ（H の各行）</span>
+        <span class="section-sub">H の各行が「パーツの見た目」を表す。</span>
+      </div>
+      <div class="canvas-grid" id="basisGrid">
+        <div class="loading-msg pulsing">計算待ち…</div>
+      </div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- W: coefficient heatmap -->
+    <div>
+      <div class="section-head">
+        <span class="section-tag tag-w">W — 係数行列</span>
+        <span class="section-title">各画像における基底パーツの使用量</span>
+        <span class="section-sub">明るいほど「その基底パーツをよく使っている」ことを示す</span>
+      </div>
+      <div class="heatmap-wrap" id="heatmapWrap">
+        <div class="loading-msg pulsing">計算待ち…</div>
+      </div>
+      <div class="legend" id="hLegend" style="display:none">
+        <span>低</span><div class="legend-bar"></div><span>高</span>
+        <span style="margin-left:8px">（各基底の使用量）</span>
+      </div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- WH: reconstructed -->
+    <div>
+      <div class="section-head">
+        <span class="section-tag tag-r">WH — 再構成</span>
+        <span class="section-title">基底パーツを係数で足し合わせた結果</span>
+        <span class="section-sub">元画像と比較して、どれだけ近似できているかを確認</span>
+      </div>
+      <div class="canvas-grid" id="reconGrid">
+        <div class="loading-msg pulsing">計算待ち…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SZ   = 10;
+const N    = 8;
+const ITERS = 200; // 固定
+
+// ===== パターン生成 =====
+function makeTemplates(type) {
+  const t = [];
+  if (type === 'face') {
+    const f1=[0,0,1,1,1,1,0,0,0,1,0,0,0,0,1,0,1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0];
+    const f2=[0,0,1,1,1,1,0,0,0,1,0,0,0,0,1,0,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,1,1,0,1,0,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0];
+    const f3=[0,0,1,1,1,1,0,0,0,1,0,0,0,0,1,0,1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,1,1,0,1,0,0,1,0,1,0,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0];
+    const f4=[0,0,1,1,1,1,0,0,0,1,1,0,0,1,1,0,1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,1,0,1,1,0,0,1,1,0,0,0,1,1,1,1,0,0];
+    t.push(f1,f2,f3,f4,
+      f1.map((v,i)=>Math.min(1,v+f2[i])),
+      f2.map((v,i)=>Math.min(1,v+f3[i])),
+      f3.map((v,i)=>Math.min(1,v+f4[i])),
+      f1.map((v,i)=>Math.min(1,v+f4[i])));
+  } else if (type === 'shapes') {
+    const circ=Array(64).fill(0).map((_,i)=>{const r=Math.floor(i/8)-3.5,c=(i%8)-3.5;return r*r+c*c<14?1:0;});
+    const hbar=Array(64).fill(0).map((_,i)=>Math.floor(i/8)>=3&&Math.floor(i/8)<=4?1:0);
+    const vbar=Array(64).fill(0).map((_,i)=>(i%8)>=3&&(i%8)<=4?1:0);
+    const diag=Array(64).fill(0).map((_,i)=>Math.abs(Math.floor(i/8)-(i%8))<=1?1:0);
+    const box =Array(64).fill(0).map((_,i)=>{const r=Math.floor(i/8),c=i%8;return(r===1||r===6||c===1||c===6)&&r>=1&&r<=6&&c>=1&&c<=6?1:0;});
+    const dot =Array(64).fill(0).map((_,i)=>{const r=Math.floor(i/8),c=i%8;return(r===2&&c===2)||(r===2&&c===5)||(r===5&&c===2)||(r===5&&c===5)?1:0;});
+    t.push(circ,hbar,vbar,diag,box,dot,
+      circ.map((v,i)=>Math.min(1,v+hbar[i])),
+      vbar.map((v,i)=>Math.min(1,v+diag[i])));
+  } else {
+    const H_=[1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0];
+    const I_=[0,1,1,1,1,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0];
+    const O_=[0,1,1,1,1,1,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0];
+    const A_=[0,0,1,1,1,1,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0];
+    const M_=[1,0,0,0,0,0,0,1,1,1,0,0,0,0,1,1,1,0,1,0,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0];
+    const F_=[1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    t.push(H_,I_,O_,A_,M_,F_,
+      H_.map((v,i)=>Math.min(1,v+I_[i])),
+      O_.map((v,i)=>Math.min(1,v+A_[i])));
+  }
+  return t;
+}
+
+function addNoise(arr, amt=0.06) {
+  return arr.map(v=>Math.min(1,Math.max(0,v+(Math.random()-0.5)*amt*2)));
+}
+
+// ===== 行列演算 =====
+function mm(A,B,m,p,n){
+  const C=Array.from({length:m},()=>new Float64Array(n));
+  for(let i=0;i<m;i++) for(let l=0;l<p;l++) if(A[i][l]>0) for(let j=0;j<n;j++) C[i][j]+=A[i][l]*B[l][j];
+  return C;
+}
+function tr(A,r,c){ return Array.from({length:c},(_,j)=>Array.from({length:r},(_,i)=>A[i][j])); }
+function frob(V,W,H){
+  const WH=mm(W,H,V.length,W[0].length,H[0].length);
+  let s=0;
+  for(let i=0;i<V.length;i++) for(let j=0;j<V[i].length;j++) s+=(V[i][j]-WH[i][j])**2;
+  return Math.sqrt(s);
+}
+
+// ===== NMF 初期化：データから直接サンプリング =====
+function initFromData(V, k) {
+  const m=V.length, d=V[0].length;
+  // H: データからランダムk行を選び小ノイズを加える（基底の形を実データで初期化）
+  const chosen=[];
+  const perm=[...Array(m).keys()].sort(()=>Math.random()-0.5);
+  for(let i=0;i<k;i++) chosen.push(perm[i%m]);
+  const H=chosen.map(idx=>V[idx].map(v=>Math.max(1e-3,v+Math.random()*0.05)));
+  // W: 小さな一様乱数
+  const W=Array.from({length:m},()=>Array.from({length:k},()=>Math.random()*0.2+0.05));
+  return {W,H};
+}
+
+// ===== 死んだ基底を検出してリセット =====
+function reviveDeadBases(V,W,H,k,m,d) {
+  const THRESH=1e-3;
+  let revived=false;
+  for(let ki=0;ki<k;ki++){
+    const hSum=H[ki].reduce((s,v)=>s+v,0);
+    if(hSum < THRESH * d){
+      // 残差最大のサンプルで再初期化
+      const WH=mm(W,H,m,k,d);
+      let maxRes=-1, maxIdx=0;
+      for(let i=0;i<m;i++){
+        const res=V[i].reduce((s,v,j)=>s+(v-WH[i][j])**2,0);
+        if(res>maxRes){maxRes=res; maxIdx=i;}
+      }
+      H[ki]=V[maxIdx].map(v=>Math.max(1e-3,v+Math.random()*0.05));
+      for(let i=0;i<m;i++) W[i][ki]=Math.random()*0.2+0.05;
+      revived=true;
+    }
+  }
+  return revived;
+}
+
+// ===== NMF 本体 =====
+function nmf(V, k) {
+  const m=V.length, d=V[0].length;
+  const eps=1e-9;
+  let {W,H}=initFromData(V,k);
+  let revivedTotal=false;
+
+  for(let it=0;it<ITERS;it++){
+    // H 更新
+    const WH=mm(W,H,m,k,d);
+    const WtV=mm(tr(W,m,k),V,k,m,d);
+    const WtWH=mm(tr(W,m,k),WH,k,m,d);
+    for(let i=0;i<k;i++) for(let j=0;j<d;j++)
+      H[i][j]=Math.max(eps, H[i][j]*WtV[i][j]/(WtWH[i][j]+eps));
+
+    // W 更新
+    const WH2=mm(W,H,m,k,d);
+    const VHt=mm(V,tr(H,k,d),m,d,k);
+    const WHHt=mm(WH2,tr(H,k,d),m,d,k);
+    for(let i=0;i<m;i++) for(let j=0;j<k;j++)
+      W[i][j]=Math.max(eps, W[i][j]*VHt[i][j]/(WHHt[i][j]+eps));
+
+    // 50回ごとに死んだ基底をチェック・修復
+    if((it+1)%50===0){
+      const r=reviveDeadBases(V,W,H,k,m,d);
+      if(r) revivedTotal=true;
+    }
+  }
+  // 最終チェック
+  const r=reviveDeadBases(V,W,H,k,m,d);
+  if(r) revivedTotal=true;
+
+  return {W, H, revived: revivedTotal};
+}
+
+// ===== 描画 =====
+function drawCanvas(pixels, sz, colorFn) {
+  const c=document.createElement('canvas');
+  c.width=N*sz; c.height=N*sz;
+  c.style.cssText=`width:${N*sz}px;height:${N*sz}px;image-rendering:pixelated;`;
+  const ctx=c.getContext('2d');
+  for(let i=0;i<N;i++) for(let j=0;j<N;j++){
+    ctx.fillStyle=colorFn(pixels[i*N+j]??0);
+    ctx.fillRect(j*sz,i*sz,sz,sz);
+  }
+  return c;
+}
+function grayColor(v){ const g=Math.round(13+v*225); return `rgb(${g},${g},${g})`; }
+function basisColor(v){ return `rgb(${Math.round(13+v*50)},${Math.round(15+v*200)},${Math.round(20+v*50)})`; }
+function heatColor(v){ return `rgb(${Math.round(13+v*78)},${Math.round(15+v*125)},${Math.round(20+v*245)})`; }
+
+function makeCell(pixels, sz, colorFn, label) {
+  const cell=document.createElement('div');
+  cell.className='canvas-cell';
+  const c=drawCanvas(pixels,sz,colorFn);
+  c.style.border='1px solid #2a2f3e';
+  c.style.borderRadius='4px';
+  cell.appendChild(c);
+  const lbl=document.createElement('div');
+  lbl.className='canvas-label';
+  lbl.textContent=label;
+  cell.appendChild(lbl);
+  return cell;
+}
+
+function buildHeatmap(W, k, nImg) {
+  // W: n×k → 行=画像, 列=基底  →  表示: 行=基底, 列=画像
+  // 各列（基底ごと）で正規化して比較しやすくする
+  const colMax=Array.from({length:k},(_,ki)=>Math.max(...W.map(row=>row[ki]),1e-6));
+  const wrap=document.createElement('div');
+  const tbl=document.createElement('table');
+  tbl.className='heatmap-table';
+
+  // ヘッダー（画像番号）
+  const thead=document.createElement('tr');
+  const th0=document.createElement('th'); th0.textContent=''; thead.appendChild(th0);
+  for(let j=0;j<nImg;j++){
+    const th=document.createElement('th'); th.textContent=`画像${j+1}`; thead.appendChild(th);
+  }
+  tbl.appendChild(thead);
+
+  // 各基底の行
+  for(let ki=0;ki<k;ki++){
+    const tr_=document.createElement('tr');
+    const rhdr=document.createElement('td');
+    rhdr.className='row-header';
+    rhdr.innerHTML=`<span style="color:var(--accent3)">基底 ${ki+1}</span>`;
+    tr_.appendChild(rhdr);
+    for(let j=0;j<nImg;j++){
+      const td=document.createElement('td');
+      const raw=W[j][ki];               // 画像j が基底ki に持つ係数
+      const v=raw/colMax[ki];
+      td.style.background=heatColor(v);
+      td.style.color=v>0.5?'#e8eaf0':'#555a70';
+      td.textContent=raw.toFixed(2);
+      tr_.appendChild(td);
+    }
+    tbl.appendChild(tr_);
+  }
+  wrap.appendChild(tbl);
+  return wrap;
+}
+
+// ===== メイン =====
+function runNMF() {
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true;
+  btn.textContent='計算中…';
+
+  setTimeout(()=>{
+    const type=document.getElementById('patternSel').value;
+    const k=parseInt(document.getElementById('kSlider').value);
+    const templates=makeTemplates(type);
+    const samples=templates.map(t=>addNoise(t));
+    const nImg=samples.length;
+    const d=N*N;
+
+    document.getElementById('dimV').textContent=`${nImg} × ${d}`;
+    document.getElementById('dimW').textContent=`${nImg} × ${k}`;
+    document.getElementById('dimH').textContent=`${k} × ${d}`;
+
+    const {W,H,revived}=nmf(samples,k);
+
+    // 元画像
+    const og=document.getElementById('origGrid');
+    og.innerHTML='';
+    samples.forEach((s,i)=>og.appendChild(makeCell(s,SZ,grayColor,`画像 ${i+1}`)));
+
+    // 基底パーツ（H の各行）
+    const bg=document.getElementById('basisGrid');
+    bg.innerHTML='';
+    for(let ki=0;ki<k;ki++){
+      const bvec=Array.from(H[ki]);
+      const mx=Math.max(...bvec,0.01);
+      const norm=bvec.map(v=>v/mx);
+      bg.appendChild(makeCell(norm,SZ,basisColor,`基底 ${ki+1}`));
+    }
+
+    // 係数ヒートマップ（W: n×k）
+    const hw=document.getElementById('heatmapWrap');
+    hw.innerHTML='';
+    hw.appendChild(buildHeatmap(W,k,nImg));
+    document.getElementById('hLegend').style.display='flex';
+
+    // 再構成
+    const WH=mm(W,H,nImg,k,d);
+    const maxWH=Math.max(...WH.map(r=>Math.max(...r)),0.01);
+    const rg=document.getElementById('reconGrid');
+    rg.innerHTML='';
+    WH.forEach((row,i)=>{
+      const norm=Array.from(row).map(v=>Math.min(1,v/maxWH));
+      rg.appendChild(makeCell(norm,SZ,grayColor,`再構成 ${i+1}`));
+    });
+
+    // 誤差
+    const err=frob(samples,W,H);
+    const maxErr=Math.sqrt(nImg*d)*0.55;
+    document.getElementById('errVal').textContent=err.toFixed(3);
+    document.getElementById('errBar').style.width=Math.max(4,Math.min(100,(1-err/maxErr)*100))+'%';
+
+    // 死んだ基底警告
+    const wb=document.getElementById('warnBadge');
+    wb.style.display=revived?'block':'none';
+
+    btn.disabled=false;
+    btn.textContent='↺ 再実行（初期値を変える）';
+  },30);
+}
+
+// スライダー変更で自動再計算
+document.getElementById('kSlider').addEventListener('input',e=>{
+  document.getElementById('kVal').textContent=e.target.value;
+  runNMF();
+});
+document.getElementById('patternSel').addEventListener('change', runNMF);
+
+runNMF();
+</script>
+</body>
+</html>
